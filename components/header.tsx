@@ -102,9 +102,11 @@ export function Header() {
           </Link>
 
           {/* User Menu */}
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <Link href="/login">
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
 
           {/* Mobile Menu */}
           <Sheet>
@@ -150,6 +152,19 @@ export function Header() {
                   className="text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
                 >
                   Painel Admin
+                </Link>
+                <hr className="my-2 border-border" />
+                <Link 
+                  href="/login" 
+                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                >
+                  Entrar
+                </Link>
+                <Link 
+                  href="/cadastro" 
+                  className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
+                >
+                  Criar conta
                 </Link>
               </nav>
             </SheetContent>
