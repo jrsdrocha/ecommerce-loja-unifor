@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { useCart } from '@/lib/cart-context'
+import Link from "next/link";
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/lib/cart-context";
 
 function CartContent() {
-  const { items, updateQuantity, removeItem, subtotal } = useCart()
+  const { items, updateQuantity, removeItem, subtotal } = useCart();
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price)
-  }
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(price);
+  };
 
-  const shipping = items.length > 0 ? 15.0 : 0
-  const total = subtotal + shipping
+  const shipping = items.length > 0 ? 15.0 : 0;
+  const total = subtotal + shipping;
 
   if (items.length === 0) {
     return (
@@ -31,20 +31,20 @@ function CartContent() {
             <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
               <ShoppingBag className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Seu carrinho está vazio</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              Seu carrinho está vazio
+            </h1>
             <p className="mt-2 text-muted-foreground">
               Adicione produtos para continuar comprando
             </p>
             <Link href="/">
-              <Button className="mt-6">
-                Continuar Comprando
-              </Button>
+              <Button className="mt-6">Continuar Comprando</Button>
             </Link>
           </div>
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -61,14 +61,19 @@ function CartContent() {
             Continuar comprando
           </Link>
 
-          <h1 className="text-3xl font-bold text-foreground">Carrinho de Compras</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Carrinho de Compras
+          </h1>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-3">
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="space-y-4">
                 {items.map((item) => (
-                  <Card key={`${item.product.id}-${item.size}-${item.color}`} className="overflow-hidden">
+                  <Card
+                    key={`${item.product.id}-${item.size}-${item.color}`}
+                    className="overflow-hidden"
+                  >
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
                         {/* Product Image */}
@@ -93,7 +98,9 @@ function CartContent() {
                               {item.personalization && (
                                 <>
                                   <span>•</span>
-                                  <span>Personalização: {item.personalization}</span>
+                                  <span>
+                                    Personalização: {item.personalization}
+                                  </span>
                                 </>
                               )}
                             </div>
@@ -106,7 +113,12 @@ function CartContent() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.product.id,
+                                    item.quantity - 1,
+                                  )
+                                }
                               >
                                 <Minus className="h-3 w-3" />
                               </Button>
@@ -117,7 +129,12 @@ function CartContent() {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.product.id,
+                                    item.quantity + 1,
+                                  )
+                                }
                               >
                                 <Plus className="h-3 w-3" />
                               </Button>
@@ -162,7 +179,9 @@ function CartContent() {
                   <Separator />
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold">Total</span>
-                    <span className="text-lg font-bold text-primary">{formatPrice(total)}</span>
+                    <span className="text-lg font-bold text-primary">
+                      {formatPrice(total)}
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     ou 3x de {formatPrice(total / 3)} sem juros
@@ -187,9 +206,9 @@ function CartContent() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default function CartPage() {
-  return <CartContent />
+  return <CartContent />;
 }

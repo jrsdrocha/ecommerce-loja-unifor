@@ -1,37 +1,37 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from 'lucide-react'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { products } from '@/lib/data'
-import { useCart } from '@/lib/cart-context'
+} from "@/components/ui/select";
+import { products } from "@/lib/data";
+import { useCart } from "@/lib/cart-context";
 
 function ProductDetailContent() {
-  const params = useParams()
-  const router = useRouter()
-  const { addItem } = useCart()
-  
-  const product = products.find((p) => p.id === params.id)
-  
-  const [selectedSize, setSelectedSize] = useState('')
-  const [selectedColor, setSelectedColor] = useState('')
-  const [personalization, setPersonalization] = useState('')
-  const [quantity, setQuantity] = useState(1)
-  const [added, setAdded] = useState(false)
+  const params = useParams();
+  const router = useRouter();
+  const { addItem } = useCart();
+
+  const product = products.find((p) => p.id === params.id);
+
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [personalization, setPersonalization] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
 
   if (!product) {
     return (
@@ -39,39 +39,50 @@ function ProductDetailContent() {
         <Header />
         <main className="flex flex-1 items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">Produto não encontrado</h1>
-            <Link href="/" className="mt-4 inline-block text-primary hover:underline">
+            <h1 className="text-2xl font-bold text-foreground">
+              Produto não encontrado
+            </h1>
+            <Link
+              href="/"
+              className="mt-4 inline-block text-primary hover:underline"
+            >
               Voltar para a loja
             </Link>
           </div>
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price)
-  }
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(price);
+  };
 
   const handleAddToCart = () => {
-    if (!selectedSize || !selectedColor) return
-    
-    addItem(product, quantity, selectedSize, selectedColor, personalization || undefined)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
-  }
+    if (!selectedSize || !selectedColor) return;
+
+    addItem(
+      product,
+      quantity,
+      selectedSize,
+      selectedColor,
+      personalization || undefined,
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   const decrementQuantity = () => {
-    if (quantity > 1) setQuantity(quantity - 1)
-  }
+    if (quantity > 1) setQuantity(quantity - 1);
+  };
 
   const incrementQuantity = () => {
-    if (quantity < product.stock) setQuantity(quantity + 1)
-  }
+    if (quantity < product.stock) setQuantity(quantity + 1);
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -129,7 +140,10 @@ function ProductDetailContent() {
                 <div className="space-y-2">
                   <Label htmlFor="size">Tamanho</Label>
                   <Select value={selectedSize} onValueChange={setSelectedSize}>
-                    <SelectTrigger id="size" className="w-full bg-secondary border-0">
+                    <SelectTrigger
+                      id="size"
+                      className="w-full bg-secondary border-0"
+                    >
                       <SelectValue placeholder="Selecione o tamanho" />
                     </SelectTrigger>
                     <SelectContent>
@@ -145,8 +159,14 @@ function ProductDetailContent() {
                 {/* Color Selector */}
                 <div className="space-y-2">
                   <Label htmlFor="color">Cor</Label>
-                  <Select value={selectedColor} onValueChange={setSelectedColor}>
-                    <SelectTrigger id="color" className="w-full bg-secondary border-0">
+                  <Select
+                    value={selectedColor}
+                    onValueChange={setSelectedColor}
+                  >
+                    <SelectTrigger
+                      id="color"
+                      className="w-full bg-secondary border-0"
+                    >
                       <SelectValue placeholder="Selecione a cor" />
                     </SelectTrigger>
                     <SelectContent>
@@ -162,7 +182,8 @@ function ProductDetailContent() {
                 {/* Personalization */}
                 <div className="space-y-2">
                   <Label htmlFor="personalization">
-                    Personalização <span className="text-muted-foreground">(opcional)</span>
+                    Personalização{" "}
+                    <span className="text-muted-foreground">(opcional)</span>
                   </Label>
                   <Input
                     id="personalization"
@@ -240,9 +261,9 @@ function ProductDetailContent() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default function ProductPage() {
-  return <ProductDetailContent />
+  return <ProductDetailContent />;
 }
