@@ -1,17 +1,37 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ShoppingCart, User, Menu, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useCart } from '@/lib/cart-context'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function Header() {
   const { itemCount } = useCart()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
+
+  useEffect(() => {
+    const currentQuery = searchParams.get('q') || ''
+    setSearchValue(currentQuery)
+  }, [searchParams])
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value)
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) {
+      params.set('q', value)
+    } else {
+      params.delete('q')
+    }
+    router.push(`/?${params.toString()}`)
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -67,6 +87,8 @@ export function Header() {
             <Input 
               placeholder="Buscar produtos..." 
               className="w-full pl-9 bg-secondary border-0"
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
@@ -181,6 +203,8 @@ export function Header() {
               placeholder="Buscar produtos..." 
               className="w-full pl-9 bg-secondary border-0"
               autoFocus
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>

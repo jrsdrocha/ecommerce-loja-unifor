@@ -7,11 +7,11 @@ import { Footer } from '@/components/footer'
 import { ProductCard } from '@/components/product-card'
 import { ProductFilters } from '@/components/product-filters'
 import { products } from '@/lib/data'
-import { CartProvider } from '@/lib/cart-context'
 
 function HomeContent() {
   const searchParams = useSearchParams()
   const categoryParam = searchParams.get('category')
+  const searchParam = searchParams.get('q')
   
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCourse, setSelectedCourse] = useState('Todos os Cursos')
@@ -22,6 +22,12 @@ function HomeContent() {
       setSelectedCategory(categoryParam)
     }
   }, [categoryParam])
+
+  useEffect(() => {
+    if (searchParam !== null) {
+      setSearchQuery(searchParam)
+    }
+  }, [searchParam])
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
@@ -102,9 +108,5 @@ function HomeContent() {
 }
 
 export default function HomePage() {
-  return (
-    <CartProvider>
-      <HomeContent />
-    </CartProvider>
-  )
+  return <HomeContent />
 }
