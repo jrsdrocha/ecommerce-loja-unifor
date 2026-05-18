@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { products } from '@/lib/data'
-import { CartProvider, useCart } from '@/lib/cart-context'
+import { useCart } from '@/lib/cart-context'
 
 function ProductDetailContent() {
   const params = useParams()
@@ -244,9 +244,5 @@ function ProductDetailContent() {
 }
 
 export default function ProductPage() {
-  return (
-    <CartProvider>
-      <ProductDetailContent />
-    </CartProvider>
-  )
+  return <ProductDetailContent />
 }

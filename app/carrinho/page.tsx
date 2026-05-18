@@ -7,7 +7,7 @@ import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { CartProvider, useCart } from '@/lib/cart-context'
+import { useCart } from '@/lib/cart-context'
 
 function CartContent() {
   const { items, updateQuantity, removeItem, subtotal } = useCart()
@@ -191,9 +191,5 @@ function CartContent() {
 }
 
 export default function CartPage() {
-  return (
-    <CartProvider>
-      <CartContent />
-    </CartProvider>
-  )
+  return <CartContent />
 }

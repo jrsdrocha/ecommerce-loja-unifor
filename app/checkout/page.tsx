@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@/components/ui/separator'
-import { CartProvider, useCart } from '@/lib/cart-context'
+import { useCart } from '@/lib/cart-context'
 
 function CheckoutContent() {
   const router = useRouter()
@@ -393,9 +393,5 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
-  return (
-    <CartProvider>
-      <CheckoutContent />
-    </CartProvider>
-  )
+  return <CheckoutContent />
 }
