@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/lib/cart-context";
+import { useCart } from "@/providers/CartProvider";
 
 export default function CarrinhoComponent() {
   const { items, updateQuantity, removeItem, subtotal } = useCart();

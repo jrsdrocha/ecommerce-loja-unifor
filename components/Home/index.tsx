@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { ProductFilters } from "@/components/product-filters";
+import { ProductFilters } from "@/components/Home/ProductFilters";
 import { products } from "@/lib/data";
 
 export default function HomeComponent() {

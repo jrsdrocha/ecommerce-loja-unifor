@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { products } from "@/lib/data";
-import { useCart } from "@/lib/cart-context";
+import { useCart } from "@/providers/CartProvider";
 
 export default function ProductDetailComponent() {
   const params = useParams();

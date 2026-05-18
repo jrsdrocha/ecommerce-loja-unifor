@@ -1,37 +1,37 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { ShoppingCart, User, Menu, Search, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { useCart } from '@/lib/cart-context'
-import { useState, useEffect } from 'react'
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ShoppingCart, User, Menu, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/providers/CartProvider";
+import { useState, useEffect } from "react";
 
 export function Header() {
-  const { itemCount } = useCart()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
+  const { itemCount } = useCart();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
-    const currentQuery = searchParams.get('q') || ''
-    setSearchValue(currentQuery)
-  }, [searchParams])
+    const currentQuery = searchParams.get("q") || "";
+    setSearchValue(currentQuery);
+  }, [searchParams]);
 
   const handleSearch = (value: string) => {
-    setSearchValue(value)
-    const params = new URLSearchParams(searchParams.toString())
+    setSearchValue(value);
+    const params = new URLSearchParams(searchParams.toString());
     if (value) {
-      params.set('q', value)
+      params.set("q", value);
     } else {
-      params.delete('q')
+      params.delete("q");
     }
-    router.push(`/?${params.toString()}`)
-  }
+    router.push(`/?${params.toString()}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -48,32 +48,32 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Início
           </Link>
-          <Link 
-            href="/?category=Camisetas" 
+          <Link
+            href="/?category=Camisetas"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Camisetas
           </Link>
-          <Link 
-            href="/?category=Moletons" 
+          <Link
+            href="/?category=Moletons"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Moletons
           </Link>
-          <Link 
-            href="/?category=Kits Acadêmicos" 
+          <Link
+            href="/?category=Kits Acadêmicos"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Kits
           </Link>
-          <Link 
-            href="/?category=Acessórios" 
+          <Link
+            href="/?category=Acessórios"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Acessórios
@@ -84,8 +84,8 @@ export function Header() {
         <div className="hidden w-full max-w-sm items-center gap-2 lg:flex">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar produtos..." 
+            <Input
+              placeholder="Buscar produtos..."
               className="w-full pl-9 bg-secondary border-0"
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}
@@ -96,9 +96,9 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           {/* Mobile Search Toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="lg:hidden"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
           >
@@ -114,9 +114,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
-                <Badge 
-                  className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-primary text-primary-foreground"
-                >
+                <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-primary text-primary-foreground">
                   {itemCount}
                 </Badge>
               )}
@@ -139,51 +137,51 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-card">
               <nav className="flex flex-col gap-4 pt-8">
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Início
                 </Link>
-                <Link 
-                  href="/?category=Camisetas" 
+                <Link
+                  href="/?category=Camisetas"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Camisetas
                 </Link>
-                <Link 
-                  href="/?category=Moletons" 
+                <Link
+                  href="/?category=Moletons"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Moletons
                 </Link>
-                <Link 
-                  href="/?category=Kits Acadêmicos" 
+                <Link
+                  href="/?category=Kits Acadêmicos"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Kits Acadêmicos
                 </Link>
-                <Link 
-                  href="/?category=Acessórios" 
+                <Link
+                  href="/?category=Acessórios"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Acessórios
                 </Link>
-                <Link 
-                  href="/admin" 
+                <Link
+                  href="/admin"
                   className="text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
                 >
                   Painel Admin
                 </Link>
                 <hr className="my-2 border-border" />
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Entrar
                 </Link>
-                <Link 
-                  href="/cadastro" 
+                <Link
+                  href="/cadastro"
                   className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
                 >
                   Criar conta
@@ -199,8 +197,8 @@ export function Header() {
         <div className="border-t border-border px-4 py-3 lg:hidden">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar produtos..." 
+            <Input
+              placeholder="Buscar produtos..."
               className="w-full pl-9 bg-secondary border-0"
               autoFocus
               value={searchValue}
@@ -210,5 +208,5 @@ export function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }

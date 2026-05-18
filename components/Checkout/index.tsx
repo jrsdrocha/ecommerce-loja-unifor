@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/lib/cart-context";
+import { useCart } from "@/providers/CartProvider";
 
 export default function CheckoutComponent() {
   const router = useRouter();
