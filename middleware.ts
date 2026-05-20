@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_COOKIE_NAME } from '@/lib/auth';
+
+const AUTH_COOKIE_NAME = 'auth_token';
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -9,9 +10,12 @@ export function middleware(req: NextRequest) {
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
-  if (!isProtected) return NextResponse.next();
+  if (!isProtected) {
+    return NextResponse.next();
+  }
 
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
+
   if (!token) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('next', pathname);
