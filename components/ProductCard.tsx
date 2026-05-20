@@ -1,3 +1,5 @@
+// Componente de cartão de produto para exibição em grid, com imagem, nome, preço e link para detalhes do produto
+
 import Link from 'next/link'
 import { Product } from '@/lib/types'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'

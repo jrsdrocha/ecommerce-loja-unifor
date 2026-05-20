@@ -1,5 +1,7 @@
 'use client'
 
+// Página de administração para gerenciar produtos, pedidos, relatórios e configurações da loja
+
 import { useState } from 'react'
 import Link from 'next/link'
 import {

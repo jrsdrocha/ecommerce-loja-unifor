@@ -1,3 +1,5 @@
+// Utilidades para a aplicação, como funções de formatação
+
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 

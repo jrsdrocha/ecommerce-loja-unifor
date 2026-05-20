@@ -1,3 +1,5 @@
+// Página de detalhes do produto
+
 import ProductDetailComponent from "@/components/Produto";
 
 export default function ProductPage() {

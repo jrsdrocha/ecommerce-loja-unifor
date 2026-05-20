@@ -1,5 +1,7 @@
 "use client";
 
+// Componente da página de cadastro de usuário com validação, feedback visual e integração simulada
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,4 +1,4 @@
-// Types for the e-commerce platform
+// Definindo os tipos de dados para a aplicação
 
 export interface Product {
   id: string

@@ -1,5 +1,7 @@
 "use client";
 
+// Componente da página de checkout com resumo do pedido, formulário de informações pessoais, opções de entrega e pagamento, e confirmação de pedido
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,8 +14,8 @@ import {
   Building2,
   Check,
 } from "lucide-react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

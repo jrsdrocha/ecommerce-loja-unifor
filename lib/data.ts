@@ -1,3 +1,5 @@
+// Definindo os dados simulados para a aplicação
+
 import { Product, Order } from './types'
 
 export const courses = [

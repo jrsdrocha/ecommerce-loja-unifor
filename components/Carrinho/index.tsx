@@ -1,9 +1,11 @@
 "use client";
 
+// Componente da página do carrinho de compras com detalhes do produto, controle de quantidade, resumo do pedido e navegação para checkout
+
 import Link from "next/link";
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";

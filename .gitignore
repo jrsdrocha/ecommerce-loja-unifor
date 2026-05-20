@@ -1,4 +1,4 @@
-# v0 sandbox internal files
+# Arquivos internos
 __v0_runtime_loader.js
 __v0_devtools.tsx
 __v0_jsx-dev-runtime.ts
@@ -7,10 +7,10 @@ __v0_jsx-dev-runtime.ts
 .vercel/
 next.user-config.*
 
-# Environment variables
+# Variáveis de ambiente
 .env*.local
 
-# Common ignores
+# Dependências
 node_modules
 .next/
 .DS_Store

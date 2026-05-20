@@ -1,5 +1,7 @@
 'use client'
 
+// Componente de filtros de produtos para a página inicial, incluindo busca, filtro por curso e categoria, com integração para atualizar os parâmetros de busca na URL
+
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,7 +32,7 @@ export function ProductFilters({
 }: ProductFiltersProps) {
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-card p-4 shadow-sm border border-border md:flex-row md:items-center">
-      {/* Search */}
+      {/* Pesquisa */}
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -41,7 +43,7 @@ export function ProductFilters({
         />
       </div>
 
-      {/* Course Filter */}
+      {/* Filtro por Curso */}
       <Select value={selectedCourse} onValueChange={setSelectedCourse}>
         <SelectTrigger className="w-full md:w-[200px] bg-secondary border-0">
           <SelectValue placeholder="Curso" />
@@ -55,7 +57,7 @@ export function ProductFilters({
         </SelectContent>
       </Select>
 
-      {/* Category Filter */}
+      {/* Filtro por Categoria */}
       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
         <SelectTrigger className="w-full md:w-[200px] bg-secondary border-0">
           <SelectValue placeholder="Categoria" />

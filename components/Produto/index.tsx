@@ -1,11 +1,13 @@
 "use client";
 
+// Componente da página de detalhes do produto, com opções de personalização, controle de quantidade e integração para adicionar ao carrinho
+
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from "lucide-react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -1,3 +1,5 @@
+// Layout raiz que definindo a estrutura HTML
+
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";

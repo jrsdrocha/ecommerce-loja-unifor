@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+// Componente de rodapé com informações de contato, links úteis e direitos autorais, estilizado para combinar com o tema da loja
+
 export function Footer() {
   return (
     <footer className="border-t border-border bg-card">

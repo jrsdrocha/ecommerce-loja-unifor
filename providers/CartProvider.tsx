@@ -1,5 +1,7 @@
 "use client";
 
+// Gerenciador do estado do carrinho de compras e fornece funções para manipulá-lo
+
 import { createContext, useContext, useState, ReactNode } from "react";
 import { CartItem, Product } from "@/lib/types";
 

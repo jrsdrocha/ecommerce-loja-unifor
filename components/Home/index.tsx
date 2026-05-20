@@ -1,9 +1,11 @@
 "use client";
 
+// Componente da página inicial, com filtros de produtos, exibição de produtos em grid e navegação para detalhes do produto
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductFilters } from "@/components/Home/ProductFilters";
 import { products } from "@/lib/data";

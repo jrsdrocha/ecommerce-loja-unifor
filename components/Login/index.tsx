@@ -1,5 +1,7 @@
 "use client";
 
+// Este componente é responsável pela página de login, permitindo que os usuários acessem suas contas para acompanhar pedidos e gerenciar informações pessoais
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

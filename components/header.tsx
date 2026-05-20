@@ -1,5 +1,7 @@
 "use client";
 
+// Componente de cabeçalho fixo com logo, navegação, busca e ações para carrinho e usuário, adaptável para desktop e mobile
+
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShoppingCart, User, Menu, Search, X } from "lucide-react";
