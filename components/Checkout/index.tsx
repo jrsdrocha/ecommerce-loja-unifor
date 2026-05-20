@@ -47,7 +47,7 @@ export default function CheckoutComponent() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
+    // Simular chamada de API
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const newOrderId = `ORD-${Date.now().toString().slice(-6)}`;

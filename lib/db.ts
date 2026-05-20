@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 
+// Conectar ao MongoDB usando Mongoose
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 declare global {
-  // eslint-disable-next-line no-var
+  // Permitir que o cache seja armazenado globalmente para evitar múltiplas conexões
   var mongooseCache:
     | {
         conn: typeof mongoose | null;

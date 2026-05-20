@@ -51,7 +51,7 @@ export default function HomeComponent() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Seção Hero */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
@@ -64,15 +64,15 @@ export default function HomeComponent() {
               </p>
             </div>
           </div>
-          {/* Decorative elements */}
+          {/* Elementos Decorativos */}
           <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
         </section>
 
-        {/* Products Section */}
+        {/* Seção de Produtos */}
         <section className="py-12">
           <div className="container mx-auto px-4">
-            {/* Filters */}
+            {/* Filtros */}
             <ProductFilters
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -82,7 +82,7 @@ export default function HomeComponent() {
               setSelectedCategory={setSelectedCategory}
             />
 
-            {/* Results count */}
+            {/* Contagens de resultados */}
             <div className="mt-6 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 {filteredProducts.length} produto
@@ -91,7 +91,7 @@ export default function HomeComponent() {
               </p>
             </div>
 
-            {/* Products Grid */}
+            {/* Grid de Produtos */}
             {filteredProducts.length > 0 ? (
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredProducts.map((product) => (
