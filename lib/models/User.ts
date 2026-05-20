@@ -12,9 +12,21 @@ const UserSchema = new Schema(
       index: true,
     },
     phone: { type: String, required: true, trim: true },
+
     course: { type: String, required: true, trim: true },
+
+    courseRef: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+      default: null,
+    },
+
     password: { type: String, required: true, select: false },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
   },
   { timestamps: true },
 );
