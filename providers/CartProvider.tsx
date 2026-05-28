@@ -1,12 +1,18 @@
-"use client";
+'use client';
 
-// Gerenciador do estado do carrinho de compras e fornece funções para manipulá-lo
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 
-import { createContext, useContext, useState, ReactNode } from "react";
-import { CartItem, Product } from "@/lib/types";
+import { CartItem, Product } from '@/lib/types';
 
 interface CartContextType {
   items: CartItem[];
+
   addItem: (
     product: Product,
     quantity: number,
@@ -14,10 +20,15 @@ interface CartContextType {
     color: string,
     personalization?: string,
   ) => void;
+
   removeItem: (productId: string) => void;
+
   updateQuantity: (productId: string, quantity: number) => void;
+
   clearCart: () => void;
+
   subtotal: number;
+
   itemCount: number;
 }
 
@@ -25,6 +36,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const storedCart = localStorage.getItem('cart');
+
+      if (storedCart) {
+        setItems(JSON.parse(storedCart));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar carrinho:', error);
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    localStorage.setItem('cart', JSON.stringify(items));
+  }, [items, hydrated]);
 
   const addItem = (
     product: Product,
@@ -44,11 +76,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (existingIndex > -1) {
         const updated = [...prev];
+
         updated[existingIndex].quantity += quantity;
+
         return updated;
       }
 
-      return [...prev, { product, quantity, size, color, personalization }];
+      return [
+        ...prev,
+        {
+          product,
+          quantity,
+          size,
+          color,
+          personalization,
+        },
+      ];
     });
   };
 
@@ -61,6 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(productId);
       return;
     }
+
     setItems((prev) =>
       prev.map((item) =>
         item.product.id === productId ? { ...item, quantity } : item,
@@ -98,8 +142,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
+
   if (!context) {
-    throw new Error("O useCart deve ser usado dentro de um CartProvider");
+    throw new Error('O useCart deve ser usado dentro de um CartProvider');
   }
+
   return context;
 }
