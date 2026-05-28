@@ -1,43 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import connectDB from '@/lib/db';
+
 import Order from '@/lib/models/Order';
+import Product from '@/lib/models/Product';
+
 import { getCurrentUserFromRequest } from '@/lib/auth';
-
-export async function GET(req: NextRequest) {
-  try {
-    const auth = await getCurrentUserFromRequest(req);
-    if (!auth) {
-      return NextResponse.json(
-        { message: 'Não autenticado.' },
-        { status: 401 },
-      );
-    }
-
-    await connectDB();
-
-    if (auth.payload.role === 'admin') {
-      const orders = await Order.find()
-        .populate('user', 'name email course role')
-        .sort({ createdAt: -1 });
-      return NextResponse.json({ orders });
-    }
-
-    const orders = await Order.find({ user: auth.user._id }).sort({
-      createdAt: -1,
-    });
-    return NextResponse.json({ orders });
-  } catch (error) {
-    console.error('ORDERS_GET_ERROR', error);
-    return NextResponse.json(
-      { message: 'Erro ao buscar pedidos.' },
-      { status: 500 },
-    );
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
     const auth = await getCurrentUserFromRequest(req);
+
     if (!auth) {
       return NextResponse.json(
         { message: 'Não autenticado.' },
@@ -46,41 +19,130 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const items = Array.isArray(body.items) ? body.items : [];
 
-    if (items.length === 0) {
+    const { items, customer, deliveryMethod, paymentMethod, address } = body;
+
+    if (!items || items.length === 0) {
+      return NextResponse.json({ message: 'Carrinho vazio.' }, { status: 400 });
+    }
+
+    await connectDB();
+
+    let subtotal = 0;
+
+    const normalizedItems = [];
+
+    for (const item of items) {
+      const product = await Product.findById(item.product.id);
+
+      if (!product) {
+        return NextResponse.json(
+          {
+            message: `Produto não encontrado: ${item.product.name}`,
+          },
+          { status: 404 },
+        );
+      }
+
+      const quantity = Number(item.quantity);
+
+      const unitPrice = Number(product.price);
+
+      const totalPrice = unitPrice * quantity;
+
+      subtotal += totalPrice;
+
+      normalizedItems.push({
+        product: product._id,
+        variant: null,
+
+        productName: product.name,
+
+        quantity,
+
+        size: item.size,
+        color: item.color,
+
+        personalization: item.personalization || '',
+
+        unitPrice,
+        totalPrice,
+      });
+    }
+
+    const shipping = deliveryMethod === 'delivery' ? 15 : 0;
+
+    const total = subtotal + shipping;
+
+    const order = await Order.create({
+      user: auth.user._id,
+
+      customer: {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        cpf: customer.cpf || '',
+        course: customer.course || '',
+      },
+
+      items: normalizedItems,
+
+      deliveryMethod,
+      paymentMethod,
+
+      address: deliveryMethod === 'delivery' ? address : null,
+
+      subtotal,
+      shipping,
+      total,
+
+      status: 'pending',
+    });
+
+    return NextResponse.json(
+      {
+        message: 'Pedido realizado com sucesso.',
+        order,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error('CREATE_ORDER_ERROR', error);
+
+    return NextResponse.json(
+      { message: 'Erro ao criar pedido.' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const auth = await getCurrentUserFromRequest(req);
+
+    if (!auth) {
       return NextResponse.json(
-        { message: 'O pedido precisa ter pelo menos um item.' },
-        { status: 400 },
+        { message: 'Não autenticado.' },
+        { status: 401 },
       );
     }
 
     await connectDB();
 
-    const order = await Order.create({
+    const orders = await Order.find({
       user: auth.user._id,
-      customer: {
-        name: body.customer?.name || auth.user.name,
-        email: body.customer?.email || auth.user.email,
-        phone: body.customer?.phone || auth.user.phone,
-        cpf: body.customer?.cpf || '',
-        course: body.customer?.course || auth.user.course,
-      },
-      items,
-      deliveryMethod: body.deliveryMethod || 'campus',
-      paymentMethod: body.paymentMethod || 'pix',
-      shippingAddress: body.shippingAddress || {},
-      subtotal: Number(body.subtotal || 0),
-      shipping: Number(body.shipping || 0),
-      total: Number(body.total || 0),
-      status: 'pending',
+    }).sort({
+      createdAt: -1,
     });
 
-    return NextResponse.json({ order }, { status: 201 });
+    return NextResponse.json({
+      orders,
+    });
   } catch (error) {
-    console.error('ORDERS_POST_ERROR', error);
+    console.error('GET_ORDERS_ERROR', error);
+
     return NextResponse.json(
-      { message: 'Erro ao criar pedido.' },
+      { message: 'Erro ao buscar pedidos.' },
       { status: 500 },
     );
   }
