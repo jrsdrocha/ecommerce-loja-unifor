@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
 // Página de administração para gerenciar produtos, pedidos, relatórios e configurações da loja
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   Package,
   ShoppingCart,
@@ -24,11 +24,11 @@ import {
   TrendingUp,
   Users,
   DollarSign,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -36,80 +36,145 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { products, mockOrders } from '@/lib/data'
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type OrderStatus = 'pending' | 'production' | 'ready' | 'shipped' | 'delivered'
+type OrderStatus = 'pending' | 'production' | 'ready' | 'shipped' | 'delivered';
 
 export default function AdminPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('products')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('products');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-    }).format(price)
-  }
+    }).format(price);
+  };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string | Date) => {
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    }).format(date)
-  }
+    }).format(new Date(date));
+  };
 
   const getStatusBadge = (status: OrderStatus) => {
     const statusConfig = {
-      pending: { label: 'Pendente', icon: Clock, className: 'bg-warning/10 text-warning border-warning/20' },
-      production: { label: 'Em Produção', icon: Package, className: 'bg-primary/10 text-primary border-primary/20' },
-      ready: { label: 'Pronto', icon: CheckCircle, className: 'bg-success/10 text-success border-success/20' },
-      shipped: { label: 'Enviado', icon: Truck, className: 'bg-accent/10 text-accent border-accent/20' },
-      delivered: { label: 'Entregue', icon: PackageCheck, className: 'bg-muted text-muted-foreground border-muted' },
-    }
-    const config = statusConfig[status]
-    const Icon = config.icon
+      pending: {
+        label: 'Pendente',
+        icon: Clock,
+        className: 'bg-warning/10 text-warning border-warning/20',
+      },
+      production: {
+        label: 'Em Produção',
+        icon: Package,
+        className: 'bg-primary/10 text-primary border-primary/20',
+      },
+      ready: {
+        label: 'Pronto',
+        icon: CheckCircle,
+        className: 'bg-success/10 text-success border-success/20',
+      },
+      shipped: {
+        label: 'Enviado',
+        icon: Truck,
+        className: 'bg-accent/10 text-accent border-accent/20',
+      },
+      delivered: {
+        label: 'Entregue',
+        icon: PackageCheck,
+        className: 'bg-muted text-muted-foreground border-muted',
+      },
+    };
+    const config = statusConfig[status];
+    const Icon = config.icon;
     return (
       <Badge variant="outline" className={config.className}>
         <Icon className="mr-1 h-3 w-3" />
         {config.label}
       </Badge>
-    )
-  }
+    );
+  };
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoadingProducts(true);
+
+        const response = await fetch('/api/produtos');
+
+        const data = await response.json();
+
+        setProducts(data.products || []);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+
+    async function fetchOrders() {
+      try {
+        setLoadingOrders(true);
+
+        const response = await fetch('/api/admin/pedidos');
+
+        const data = await response.json();
+
+        setOrders(data.orders || []);
+      } catch (error) {
+        console.error('Erro ao buscar pedidos:', error);
+      } finally {
+        setLoadingOrders(false);
+      }
+    }
+
+    fetchProducts();
+    fetchOrders();
+  }, []);
 
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-  const filteredOrders = mockOrders.filter((order) => {
-    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   // Stats
-  const totalRevenue = mockOrders.reduce((sum, order) => sum + order.total, 0)
-  const pendingOrders = mockOrders.filter((o) => o.status === 'pending').length
-  const lowStockProducts = products.filter((p) => p.stock < 50).length
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
+  const lowStockProducts = products.filter((p) => p.stock < 50).length;
 
   const navItems = [
     { id: 'products', label: 'Produtos', icon: Package },
     { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
     { id: 'reports', label: 'Relatórios', icon: BarChart3 },
     { id: 'settings', label: 'Configurações', icon: Settings },
-  ]
+  ];
 
   return (
     <div className="flex min-h-screen">
@@ -119,15 +184,19 @@ export default function AdminPage() {
           {/* Logo */}
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary">
-              <span className="text-sm font-bold text-sidebar-primary-foreground">U</span>
+              <span className="text-sm font-bold text-sidebar-primary-foreground">
+                U
+              </span>
             </div>
-            <span className="text-lg font-bold text-sidebar-foreground">Admin UNIFOR</span>
+            <span className="text-lg font-bold text-sidebar-foreground">
+              Admin UNIFOR
+            </span>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 p-4">
             {navItems.map((item) => {
-              const Icon = item.icon
+              const Icon = item.icon;
               return (
                 <button
                   key={item.id}
@@ -141,14 +210,17 @@ export default function AdminPage() {
                   <Icon className="h-5 w-5" />
                   {item.label}
                 </button>
-              )
+              );
             })}
           </nav>
 
           {/* Back to Store */}
           <div className="border-t border-sidebar-border p-4">
             <Link href="/">
-              <Button variant="outline" className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
                 <Home className="h-4 w-4" />
                 Voltar à Loja
               </Button>
@@ -169,9 +241,13 @@ export default function AdminPage() {
               <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary">
-                    <span className="text-sm font-bold text-sidebar-primary-foreground">U</span>
+                    <span className="text-sm font-bold text-sidebar-primary-foreground">
+                      U
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-sidebar-foreground">Admin</span>
+                  <span className="text-lg font-bold text-sidebar-foreground">
+                    Admin
+                  </span>
                 </div>
                 <Button
                   variant="ghost"
@@ -185,13 +261,13 @@ export default function AdminPage() {
 
               <nav className="flex-1 space-y-1 p-4">
                 {navItems.map((item) => {
-                  const Icon = item.icon
+                  const Icon = item.icon;
                   return (
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveTab(item.id)
-                        setSidebarOpen(false)
+                        setActiveTab(item.id);
+                        setSidebarOpen(false);
                       }}
                       className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         activeTab === item.id
@@ -202,13 +278,16 @@ export default function AdminPage() {
                       <Icon className="h-5 w-5" />
                       {item.label}
                     </button>
-                  )
+                  );
                 })}
               </nav>
 
               <div className="border-t border-sidebar-border p-4">
                 <Link href="/">
-                  <Button variant="outline" className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground"
+                  >
                     <Home className="h-4 w-4" />
                     Voltar à Loja
                   </Button>
@@ -259,7 +338,9 @@ export default function AdminPage() {
                       <Package className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Total de Produtos</p>
+                      <p className="text-sm text-muted-foreground">
+                        Total de Produtos
+                      </p>
                       <p className="text-2xl font-bold">{products.length}</p>
                     </div>
                   </CardContent>
@@ -270,7 +351,9 @@ export default function AdminPage() {
                       <AlertCircle className="h-6 w-6 text-warning" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Estoque Baixo</p>
+                      <p className="text-sm text-muted-foreground">
+                        Estoque Baixo
+                      </p>
                       <p className="text-2xl font-bold">{lowStockProducts}</p>
                     </div>
                   </CardContent>
@@ -281,8 +364,12 @@ export default function AdminPage() {
                       <TrendingUp className="h-6 w-6 text-success" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Mais Vendido</p>
-                      <p className="text-lg font-bold truncate">Camiseta UNIFOR</p>
+                      <p className="text-sm text-muted-foreground">
+                        Mais Vendido
+                      </p>
+                      <p className="text-lg font-bold truncate">
+                        Camiseta UNIFOR
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -292,8 +379,17 @@ export default function AdminPage() {
                       <DollarSign className="h-6 w-6 text-accent" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Valor em Estoque</p>
-                      <p className="text-2xl font-bold">{formatPrice(products.reduce((sum, p) => sum + p.price * p.stock, 0))}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Valor em Estoque
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatPrice(
+                          products.reduce(
+                            (sum, p) => sum + p.price * p.stock,
+                            0,
+                          ),
+                        )}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -328,12 +424,16 @@ export default function AdminPage() {
                                     {product.name.charAt(0)}
                                   </span>
                                 </div>
-                                <span className="font-medium">{product.name}</span>
+                                <span className="font-medium">
+                                  {product.name}
+                                </span>
                               </div>
                             </TableCell>
                             <TableCell>{product.category}</TableCell>
                             <TableCell>
-                              <Badge variant="secondary">{product.course}</Badge>
+                              <Badge variant="secondary">
+                                {product.course}
+                              </Badge>
                             </TableCell>
                             <TableCell className="text-right">
                               {formatPrice(product.price)}
@@ -357,7 +457,11 @@ export default function AdminPage() {
                                 <Button variant="ghost" size="icon">
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="text-destructive">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive"
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -379,35 +483,45 @@ export default function AdminPage() {
                 <Card className="bg-warning/5 border-warning/20">
                   <CardContent className="p-4 text-center">
                     <Clock className="mx-auto h-6 w-6 text-warning" />
-                    <p className="mt-2 text-2xl font-bold">{mockOrders.filter(o => o.status === 'pending').length}</p>
+                    <p className="mt-2 text-2xl font-bold">
+                      {orders.filter((o) => o.status === 'pending').length}
+                    </p>
                     <p className="text-sm text-muted-foreground">Pendentes</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-primary/5 border-primary/20">
                   <CardContent className="p-4 text-center">
                     <Package className="mx-auto h-6 w-6 text-primary" />
-                    <p className="mt-2 text-2xl font-bold">{mockOrders.filter(o => o.status === 'production').length}</p>
+                    <p className="mt-2 text-2xl font-bold">
+                      {orders.filter((o) => o.status === 'production').length}
+                    </p>
                     <p className="text-sm text-muted-foreground">Em Produção</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-success/5 border-success/20">
                   <CardContent className="p-4 text-center">
                     <CheckCircle className="mx-auto h-6 w-6 text-success" />
-                    <p className="mt-2 text-2xl font-bold">{mockOrders.filter(o => o.status === 'ready').length}</p>
+                    <p className="mt-2 text-2xl font-bold">
+                      {orders.filter((o) => o.status === 'ready').length}
+                    </p>
                     <p className="text-sm text-muted-foreground">Prontos</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-accent/5 border-accent/20">
                   <CardContent className="p-4 text-center">
                     <Truck className="mx-auto h-6 w-6 text-accent" />
-                    <p className="mt-2 text-2xl font-bold">{mockOrders.filter(o => o.status === 'shipped').length}</p>
+                    <p className="mt-2 text-2xl font-bold">
+                      {orders.filter((o) => o.status === 'shipped').length}
+                    </p>
                     <p className="text-sm text-muted-foreground">Enviados</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-muted">
                   <CardContent className="p-4 text-center">
                     <PackageCheck className="mx-auto h-6 w-6 text-muted-foreground" />
-                    <p className="mt-2 text-2xl font-bold">{mockOrders.filter(o => o.status === 'delivered').length}</p>
+                    <p className="mt-2 text-2xl font-bold">
+                      {orders.filter((o) => o.status === 'delivered').length}
+                    </p>
                     <p className="text-sm text-muted-foreground">Entregues</p>
                   </CardContent>
                 </Card>
@@ -448,10 +562,14 @@ export default function AdminPage() {
                       <TableBody>
                         {filteredOrders.map((order) => (
                           <TableRow key={order.id}>
-                            <TableCell className="font-medium">{order.id}</TableCell>
+                            <TableCell className="font-medium">
+                              {order.id}
+                            </TableCell>
                             <TableCell>
                               <div>
-                                <p className="font-medium">{order.customerName}</p>
+                                <p className="font-medium">
+                                  {order.customerName}
+                                </p>
                                 <p className="text-xs text-muted-foreground">
                                   {order.customerEmail}
                                 </p>
@@ -460,10 +578,14 @@ export default function AdminPage() {
                             <TableCell>{formatDate(order.createdAt)}</TableCell>
                             <TableCell>
                               <Badge variant="outline">
-                                {order.deliveryMethod === 'campus' ? 'Retirada' : 'Entrega'}
+                                {order.deliveryMethod === 'campus'
+                                  ? 'Retirada'
+                                  : 'Entrega'}
                               </Badge>
                             </TableCell>
-                            <TableCell>{getStatusBadge(order.status)}</TableCell>
+                            <TableCell>
+                              {getStatusBadge(order.status)}
+                            </TableCell>
                             <TableCell className="text-right font-medium">
                               {formatPrice(order.total)}
                             </TableCell>
@@ -497,8 +619,12 @@ export default function AdminPage() {
                       <DollarSign className="h-6 w-6 text-success" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Receita Total</p>
-                      <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Receita Total
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatPrice(totalRevenue)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -508,8 +634,10 @@ export default function AdminPage() {
                       <ShoppingCart className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Total de Pedidos</p>
-                      <p className="text-2xl font-bold">{mockOrders.length}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Total de Pedidos
+                      </p>
+                      <p className="text-2xl font-bold">{orders.length}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -519,8 +647,12 @@ export default function AdminPage() {
                       <Users className="h-6 w-6 text-accent" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Clientes Únicos</p>
-                      <p className="text-2xl font-bold">{new Set(mockOrders.map(o => o.customerEmail)).size}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Clientes Únicos
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {new Set(orders.map((o) => o.customerEmail)).size}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -530,8 +662,12 @@ export default function AdminPage() {
                       <TrendingUp className="h-6 w-6 text-warning" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Ticket Médio</p>
-                      <p className="text-2xl font-bold">{formatPrice(totalRevenue / mockOrders.length)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Ticket Médio
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatPrice(totalRevenue / orders.length)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -545,16 +681,26 @@ export default function AdminPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {['Camisetas', 'Moletons', 'Kits Acadêmicos', 'Acessórios', 'Papelaria'].map((cat, i) => (
+                      {[
+                        'Camisetas',
+                        'Moletons',
+                        'Kits Acadêmicos',
+                        'Acessórios',
+                        'Papelaria',
+                      ].map((cat, i) => (
                         <div key={cat} className="flex items-center gap-4">
-                          <div className="w-24 text-sm text-muted-foreground">{cat}</div>
+                          <div className="w-24 text-sm text-muted-foreground">
+                            {cat}
+                          </div>
                           <div className="flex-1 h-4 bg-secondary rounded-full overflow-hidden">
                             <div
                               className="h-full bg-primary rounded-full"
                               style={{ width: `${[75, 60, 45, 35, 25][i]}%` }}
                             />
                           </div>
-                          <div className="w-12 text-sm font-medium text-right">{[75, 60, 45, 35, 25][i]}%</div>
+                          <div className="w-12 text-sm font-medium text-right">
+                            {[75, 60, 45, 35, 25][i]}%
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -566,16 +712,26 @@ export default function AdminPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {['Medicina', 'Direito', 'Engenharia', 'Administração', 'Psicologia'].map((course, i) => (
+                      {[
+                        'Medicina',
+                        'Direito',
+                        'Engenharia',
+                        'Administração',
+                        'Psicologia',
+                      ].map((course, i) => (
                         <div key={course} className="flex items-center gap-4">
-                          <div className="w-24 text-sm text-muted-foreground">{course}</div>
+                          <div className="w-24 text-sm text-muted-foreground">
+                            {course}
+                          </div>
                           <div className="flex-1 h-4 bg-secondary rounded-full overflow-hidden">
                             <div
                               className="h-full bg-accent rounded-full"
                               style={{ width: `${[80, 65, 55, 40, 30][i]}%` }}
                             />
                           </div>
-                          <div className="w-12 text-sm font-medium text-right">{[80, 65, 55, 40, 30][i]}%</div>
+                          <div className="w-12 text-sm font-medium text-right">
+                            {[80, 65, 55, 40, 30][i]}%
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -594,8 +750,12 @@ export default function AdminPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Produto</TableHead>
-                          <TableHead className="text-right">Estoque Atual</TableHead>
-                          <TableHead className="text-right">Mínimo Recomendado</TableHead>
+                          <TableHead className="text-right">
+                            Estoque Atual
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Mínimo Recomendado
+                          </TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -606,8 +766,12 @@ export default function AdminPage() {
                           .slice(0, 5)
                           .map((product) => (
                             <TableRow key={product.id}>
-                              <TableCell className="font-medium">{product.name}</TableCell>
-                              <TableCell className="text-right">{product.stock}</TableCell>
+                              <TableCell className="font-medium">
+                                {product.name}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {product.stock}
+                              </TableCell>
                               <TableCell className="text-right">100</TableCell>
                               <TableCell>
                                 {product.stock < 50 ? (
@@ -639,19 +803,37 @@ export default function AdminPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Nome da Loja</label>
-                    <Input defaultValue="Loja UNIFOR" className="bg-secondary border-0" />
+                    <Input
+                      defaultValue="Loja UNIFOR"
+                      className="bg-secondary border-0"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">E-mail de Contato</label>
-                    <Input defaultValue="loja@unifor.br" className="bg-secondary border-0" />
+                    <label className="text-sm font-medium">
+                      E-mail de Contato
+                    </label>
+                    <Input
+                      defaultValue="loja@unifor.br"
+                      className="bg-secondary border-0"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Telefone</label>
-                    <Input defaultValue="(85) 3477-3000" className="bg-secondary border-0" />
+                    <Input
+                      defaultValue="(85) 3477-3000"
+                      className="bg-secondary border-0"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Valor do Frete (Entrega)</label>
-                    <Input defaultValue="15.00" type="number" step="0.01" className="bg-secondary border-0" />
+                    <label className="text-sm font-medium">
+                      Valor do Frete (Entrega)
+                    </label>
+                    <Input
+                      defaultValue="15.00"
+                      type="number"
+                      step="0.01"
+                      className="bg-secondary border-0"
+                    />
                   </div>
                   <Button>Salvar Alterações</Button>
                 </CardContent>
@@ -687,5 +869,5 @@ export default function AdminPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

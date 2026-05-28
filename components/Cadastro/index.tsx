@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -51,6 +51,28 @@ export default function CadastroPage() {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/me');
+
+        const data = await response.json();
+
+        if (data.user) {
+          router.replace('/');
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+
+    checkAuth();
+  }, [router]);
 
   const passwordRequirements = [
     { label: 'Pelo menos 8 caracteres', test: (p: string) => p.length >= 8 },
@@ -169,6 +191,18 @@ export default function CadastroPage() {
       setIsLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+
+          <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">

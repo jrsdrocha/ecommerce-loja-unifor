@@ -39,12 +39,34 @@ export default function LoginPage() {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     if (registered) {
       setMessage('Conta criada com sucesso. Faça login.');
     }
   }, [registered]);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/me');
+
+        const data = await response.json();
+
+        if (data.user) {
+          router.replace('/');
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+
+    checkAuth();
+  }, [router]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -104,6 +126,18 @@ export default function LoginPage() {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+
+          <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">

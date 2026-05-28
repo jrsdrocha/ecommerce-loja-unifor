@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const result = await getCurrentUserFromRequest(req);
+    const auth = await getCurrentUserFromRequest(req);
 
-    if (!result) {
-      return NextResponse.json(
-        { message: 'Não autenticado.' },
-        { status: 401 },
-      );
+    if (!auth) {
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
     return NextResponse.json({
-      user: result.user.toJSON(),
-      role: result.payload.role,
+      user: {
+        id: auth.user.id,
+        name: auth.user.name,
+        email: auth.user.email,
+        role: auth.user.role,
+      },
     });
   } catch (error) {
-    console.error('ME_ERROR', error);
+    console.error('AUTH_ME_ERROR', error);
+
     return NextResponse.json(
-      { message: 'Erro ao verificar sessão.' },
+      {
+        message: 'Erro ao carregar usuário.',
+      },
       { status: 500 },
     );
   }
