@@ -24,6 +24,7 @@ import {
   TrendingUp,
   Users,
   DollarSign,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+import { Label } from '@/components/ui/label';
 
 type OrderStatus = 'pending' | 'production' | 'ready' | 'shipped' | 'delivered';
 
@@ -53,13 +65,27 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('products');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
-
   const [loadingProducts, setLoadingProducts] = useState(true);
-
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [creatingProduct, setCreatingProduct] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    course: '',
+    category: '',
+    image: '',
+  });
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [updatingProduct, setUpdatingProduct] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<any>(null);
+  const [deletingProduct, setDeletingProduct] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -219,7 +245,7 @@ export default function AdminPage() {
             <Link href="/">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="w-full justify-start gap-2 border-sidebar-border bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <Home className="h-4 w-4" />
                 Voltar à Loja
@@ -399,7 +425,458 @@ export default function AdminPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Gerenciar Produtos</CardTitle>
-                  <Button>Adicionar Produto</Button>
+                  <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Adicionar Produto
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="sm:max-w-[600px]">
+                      <DialogHeader>
+                        <DialogTitle>Novo Produto</DialogTitle>
+
+                        <DialogDescription>
+                          Adicione um novo produto à loja.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                          <Label>Nome</Label>
+
+                          <Input
+                            value={newProduct.name}
+                            onChange={(e) =>
+                              setNewProduct((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Descrição</Label>
+
+                          <Input
+                            value={newProduct.description}
+                            onChange={(e) =>
+                              setNewProduct((prev) => ({
+                                ...prev,
+                                description: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Preço</Label>
+
+                            <Input
+                              type="number"
+                              value={newProduct.price}
+                              onChange={(e) =>
+                                setNewProduct((prev) => ({
+                                  ...prev,
+                                  price: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Estoque</Label>
+
+                            <Input
+                              type="number"
+                              value={newProduct.stock}
+                              onChange={(e) =>
+                                setNewProduct((prev) => ({
+                                  ...prev,
+                                  stock: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Curso</Label>
+
+                            <Input
+                              value={newProduct.course}
+                              onChange={(e) =>
+                                setNewProduct((prev) => ({
+                                  ...prev,
+                                  course: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Categoria</Label>
+
+                            <Input
+                              value={newProduct.category}
+                              onChange={(e) =>
+                                setNewProduct((prev) => ({
+                                  ...prev,
+                                  category: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>URL da imagem</Label>
+
+                          <Input
+                            value={newProduct.image}
+                            onChange={(e) =>
+                              setNewProduct((prev) => ({
+                                ...prev,
+                                image: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsCreateOpen(false)}
+                        >
+                          Cancelar
+                        </Button>
+
+                        <Button
+                          disabled={creatingProduct}
+                          onClick={async () => {
+                            try {
+                              setCreatingProduct(true);
+
+                              const response = await fetch('/api/produtos', {
+                                method: 'POST',
+
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+
+                                body: JSON.stringify({
+                                  ...newProduct,
+
+                                  price: Number(newProduct.price),
+
+                                  stock: Number(newProduct.stock),
+
+                                  sizes: ['P', 'M', 'G'],
+
+                                  colors: ['Preto'],
+                                }),
+                              });
+
+                              const data = await response.json();
+
+                              if (!response.ok) {
+                                throw new Error(
+                                  data.message || 'Erro ao criar produto.',
+                                );
+                              }
+
+                              setProducts((prev) => [data.product, ...prev]);
+
+                              setNewProduct({
+                                name: '',
+                                description: '',
+                                price: '',
+                                stock: '',
+                                course: '',
+                                category: '',
+                                image: '',
+                              });
+
+                              setIsCreateOpen(false);
+
+                              alert('Produto criado com sucesso.');
+                            } catch (error: any) {
+                              console.error(error);
+
+                              alert(error.message || 'Erro ao criar produto.');
+                            } finally {
+                              setCreatingProduct(false);
+                            }
+                          }}
+                        >
+                          {creatingProduct ? 'Criando...' : 'Criar Produto'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                    <DialogContent className="sm:max-w-[600px]">
+                      <DialogHeader>
+                        <DialogTitle>Editar Produto</DialogTitle>
+
+                        <DialogDescription>
+                          Atualize as informações do produto.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      {editingProduct && (
+                        <div className="grid gap-4 py-4">
+                          <div className="space-y-2">
+                            <Label>Nome</Label>
+
+                            <Input
+                              value={editingProduct.name}
+                              onChange={(e) =>
+                                setEditingProduct((prev: any) => ({
+                                  ...prev,
+                                  name: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Descrição</Label>
+
+                            <Input
+                              value={editingProduct.description}
+                              onChange={(e) =>
+                                setEditingProduct((prev: any) => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Preço</Label>
+
+                              <Input
+                                type="number"
+                                value={editingProduct.price}
+                                onChange={(e) =>
+                                  setEditingProduct((prev: any) => ({
+                                    ...prev,
+                                    price: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Estoque</Label>
+
+                              <Input
+                                type="number"
+                                value={editingProduct.stock}
+                                onChange={(e) =>
+                                  setEditingProduct((prev: any) => ({
+                                    ...prev,
+                                    stock: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Curso</Label>
+
+                              <Input
+                                value={editingProduct.course}
+                                onChange={(e) =>
+                                  setEditingProduct((prev: any) => ({
+                                    ...prev,
+                                    course: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Categoria</Label>
+
+                              <Input
+                                value={editingProduct.category}
+                                onChange={(e) =>
+                                  setEditingProduct((prev: any) => ({
+                                    ...prev,
+                                    category: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Imagem</Label>
+
+                            <Input
+                              value={editingProduct.image}
+                              onChange={(e) =>
+                                setEditingProduct((prev: any) => ({
+                                  ...prev,
+                                  image: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditOpen(false)}
+                        >
+                          Cancelar
+                        </Button>
+
+                        <Button
+                          disabled={updatingProduct}
+                          onClick={async () => {
+                            try {
+                              setUpdatingProduct(true);
+
+                              const response = await fetch(
+                                `/api/produtos/${editingProduct.id}`,
+                                {
+                                  method: 'PATCH',
+
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+
+                                  body: JSON.stringify({
+                                    ...editingProduct,
+
+                                    price: Number(editingProduct.price),
+
+                                    stock: Number(editingProduct.stock),
+                                  }),
+                                },
+                              );
+
+                              const data = await response.json();
+
+                              if (!response.ok) {
+                                throw new Error(
+                                  data.message || 'Erro ao atualizar produto.',
+                                );
+                              }
+
+                              setProducts((prev) =>
+                                prev.map((p) =>
+                                  p.id === editingProduct.id ? data.product : p,
+                                ),
+                              );
+
+                              setIsEditOpen(false);
+
+                              alert('Produto atualizado.');
+                            } catch (error: any) {
+                              console.error(error);
+
+                              alert(
+                                error.message || 'Erro ao atualizar produto.',
+                              );
+                            } finally {
+                              setUpdatingProduct(false);
+                            }
+                          }}
+                        >
+                          {updatingProduct ? 'Salvando...' : 'Salvar'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                    <DialogContent className="sm:max-w-[420px]">
+                      <DialogHeader>
+                        <DialogTitle>Remover Produto</DialogTitle>
+
+                        <DialogDescription>
+                          Tem certeza que deseja remover este produto? Esta ação
+                          não pode ser desfeita.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      {productToDelete && (
+                        <div className="rounded-lg border p-4">
+                          <p className="font-medium">{productToDelete.name}</p>
+
+                          <p className="text-sm text-muted-foreground">
+                            {productToDelete.category}
+                          </p>
+                        </div>
+                      )}
+
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDeleteOpen(false)}
+                        >
+                          Cancelar
+                        </Button>
+
+                        <Button
+                          variant="destructive"
+                          disabled={deletingProduct}
+                          onClick={async () => {
+                            try {
+                              setDeletingProduct(true);
+
+                              const response = await fetch(
+                                `/api/produtos/${productToDelete.id}`,
+                                {
+                                  method: 'DELETE',
+                                },
+                              );
+
+                              const data = await response.json();
+
+                              if (!response.ok) {
+                                throw new Error(
+                                  data.message || 'Erro ao remover produto.',
+                                );
+                              }
+
+                              setProducts((prev) =>
+                                prev.filter((p) => p.id !== productToDelete.id),
+                              );
+
+                              setIsDeleteOpen(false);
+
+                              setProductToDelete(null);
+                            } catch (error: any) {
+                              console.error(error);
+
+                              alert(
+                                error.message || 'Erro ao remover produto.',
+                              );
+                            } finally {
+                              setDeletingProduct(false);
+                            }
+                          }}
+                        >
+                          {deletingProduct ? 'Removendo...' : 'Remover'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -451,16 +928,26 @@ export default function AdminPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setEditingProduct(product);
+
+                                    setIsEditOpen(true);
+                                  }}
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="text-destructive"
+                                  onClick={() => {
+                                    setProductToDelete(product);
+
+                                    setIsDeleteOpen(true);
+                                  }}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -594,9 +1081,75 @@ export default function AdminPage() {
                                 <Button variant="ghost" size="icon">
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
+                                <Select
+                                  value={order.status}
+                                  onValueChange={async (value) => {
+                                    try {
+                                      const response = await fetch(
+                                        `/api/admin/pedidos/${order.id}`,
+                                        {
+                                          method: 'PATCH',
+
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+
+                                          body: JSON.stringify({
+                                            status: value,
+                                          }),
+                                        },
+                                      );
+
+                                      const data = await response.json();
+
+                                      if (!response.ok) {
+                                        throw new Error(
+                                          data.message ||
+                                            'Erro ao atualizar status.',
+                                        );
+                                      }
+
+                                      setOrders((prev) =>
+                                        prev.map((o) =>
+                                          o.id === order.id ? data.order : o,
+                                        ),
+                                      );
+                                    } catch (error: any) {
+                                      console.error(error);
+
+                                      alert(
+                                        error.message ||
+                                          'Erro ao atualizar status.',
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="w-[160px] bg-secondary border-0">
+                                    <SelectValue />
+                                  </SelectTrigger>
+
+                                  <SelectContent>
+                                    <SelectItem value="pending">
+                                      Pendente
+                                    </SelectItem>
+
+                                    <SelectItem value="production">
+                                      Em Produção
+                                    </SelectItem>
+
+                                    <SelectItem value="ready">
+                                      Pronto
+                                    </SelectItem>
+
+                                    <SelectItem value="shipped">
+                                      Enviado
+                                    </SelectItem>
+
+                                    <SelectItem value="delivered">
+                                      Entregue
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </TableCell>
                           </TableRow>
