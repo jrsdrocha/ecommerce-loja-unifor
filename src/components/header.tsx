@@ -12,17 +12,20 @@ import {
   X,
   LogOut,
   Shield,
+  Package,
+  UserCog,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -207,23 +210,31 @@ export function Header() {
                   </Link>
                 )}
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      {user.name}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => router.push("/perfil")}>
-                      Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => router.push("/meus-pedidos")}
-                    >
-                      Meus pedidos
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Select
+                  value=""
+                  onValueChange={(val) => {
+                    if (val === "perfil") router.push("/perfil");
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-auto gap-2 border border-input bg-transparent px-3 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground focus:ring-0">
+                    <User className="h-4 w-4 shrink-0" />
+                    <SelectValue placeholder={user.name} />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    <SelectItem value="perfil" className="cursor-pointer">
+                      <div className="flex items-center">
+                        <UserCog className="mr-2 h-4 w-4" />
+                        Perfil
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pedidos" disabled>
+                      <div className="flex items-center">
+                        <Package className="mr-2 h-4 w-4" />
+                        Meus pedidos
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
 
                 <Button variant="ghost" size="icon" onClick={handleLogout}>
                   <LogOut className="h-5 w-5" />
@@ -286,6 +297,16 @@ export function Header() {
 
                 {user ? (
                   <>
+                    <Link
+                      href="/perfil"
+                      className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    >
+                      Perfil
+                    </Link>
+                    <span className="cursor-not-allowed text-lg font-medium text-muted-foreground opacity-70">
+                      Meus pedidos
+                    </span>
+
                     {user.role === "admin" && (
                       <Link
                         href="/admin"

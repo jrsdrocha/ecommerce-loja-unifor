@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -241,13 +248,53 @@ export default function PerfilPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="course">Curso</Label>
-                      <Input
-                        id="course"
-                        name="course"
-                        value={formData.course}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                      />
+                      {isEditing ? (
+                        <Select
+                          value={formData.course}
+                          onValueChange={(value) => {
+                            setFormData((prev) => ({ ...prev, course: value }));
+                            if (errors.course) {
+                              setErrors((prev) => ({ ...prev, course: "" }));
+                            }
+                          }}
+                        >
+                          <SelectTrigger id="course">
+                            <SelectValue placeholder="Selecione o seu curso" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Administração">
+                              Administração
+                            </SelectItem>
+                            <SelectItem value="Arquitetura">
+                              Arquitetura
+                            </SelectItem>
+                            <SelectItem value="Ciência da Computação">
+                              Ciência da Computação
+                            </SelectItem>
+                            <SelectItem value="Direito">Direito</SelectItem>
+                            <SelectItem value="Enfermagem">
+                              Enfermagem
+                            </SelectItem>
+                            <SelectItem value="Engenharia Civil">
+                              Engenharia Civil
+                            </SelectItem>
+                            <SelectItem value="Medicina">Medicina</SelectItem>
+                            <SelectItem value="Odontologia">
+                              Odontologia
+                            </SelectItem>
+                            <SelectItem value="Psicologia">
+                              Psicologia
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          id="course"
+                          name="course"
+                          value={formData.course}
+                          disabled
+                        />
+                      )}
                       {errors.course ? (
                         <p className="text-sm text-destructive">
                           {errors.course}
