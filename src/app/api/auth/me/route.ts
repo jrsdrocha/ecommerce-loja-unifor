@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import { getCurrentUserFromRequest } from '@/lib/auth';
+import { getCurrentUserFromRequest } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,15 +15,17 @@ export async function GET(req: NextRequest) {
         id: auth.user.id,
         name: auth.user.name,
         email: auth.user.email,
+        phone: auth.user.phone,
+        course: auth.user.course,
         role: auth.user.role,
       },
     });
   } catch (error) {
-    console.error('AUTH_ME_ERROR', error);
+    console.error("AUTH_ME_ERROR", error);
 
     return NextResponse.json(
       {
-        message: 'Erro ao carregar usuário.',
+        message: "Erro ao carregar usuário.",
       },
       { status: 500 },
     );

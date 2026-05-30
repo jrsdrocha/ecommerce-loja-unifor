@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   ShoppingCart,
@@ -12,17 +12,23 @@ import {
   X,
   LogOut,
   Shield,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-import { useCart } from '@/providers/CartProvider';
+import { useCart } from "@/providers/CartProvider";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export function Header() {
   const { itemCount } = useCart();
@@ -33,14 +39,14 @@ export function Header() {
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
   const [user, setUser] = useState<any>(null);
 
   const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
-    const currentQuery = searchParams.get('q') || '';
+    const currentQuery = searchParams.get("q") || "";
 
     setSearchValue(currentQuery);
   }, [searchParams]);
@@ -48,13 +54,13 @@ export function Header() {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const response = await fetch('/api/auth/me');
+        const response = await fetch("/api/auth/me");
 
         const data = await response.json();
 
         setUser(data.user);
       } catch (error) {
-        console.error('Erro ao carregar usuário:', error);
+        console.error("Erro ao carregar usuário:", error);
       } finally {
         setLoadingUser(false);
       }
@@ -69,9 +75,9 @@ export function Header() {
     const params = new URLSearchParams(searchParams.toString());
 
     if (value) {
-      params.set('q', value);
+      params.set("q", value);
     } else {
-      params.delete('q');
+      params.delete("q");
     }
 
     router.push(`/?${params.toString()}`);
@@ -79,17 +85,17 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
+      await fetch("/api/auth/logout", {
+        method: "POST",
       });
 
       setUser(null);
 
       router.refresh();
 
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Erro ao sair:', error);
+      console.error("Erro ao sair:", error);
     }
   };
 
@@ -192,7 +198,7 @@ export function Header() {
           {!loadingUser &&
             (user ? (
               <div className="hidden md:flex items-center gap-2">
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <Link href="/admin">
                     <Button variant="outline" size="sm">
                       <Shield className="mr-2 h-4 w-4" />
@@ -201,9 +207,23 @@ export function Header() {
                   </Link>
                 )}
 
-                <span className="text-sm text-muted-foreground">
-                  {user.name}
-                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      {user.name}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => router.push("/perfil")}>
+                      Perfil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => router.push("/meus-pedidos")}
+                    >
+                      Meus pedidos
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <Button variant="ghost" size="icon" onClick={handleLogout}>
                   <LogOut className="h-5 w-5" />
@@ -266,7 +286,7 @@ export function Header() {
 
                 {user ? (
                   <>
-                    {user.role === 'admin' && (
+                    {user.role === "admin" && (
                       <Link
                         href="/admin"
                         className="text-lg font-medium text-primary"
