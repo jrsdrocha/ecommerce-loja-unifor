@@ -214,6 +214,7 @@ export function Header() {
                   value=""
                   onValueChange={(val) => {
                     if (val === "perfil") router.push("/perfil");
+                    if (val === "pedidos") router.push("/userPedidos");
                   }}
                 >
                   <SelectTrigger className="h-9 w-auto gap-2 border border-input bg-transparent px-3 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground focus:ring-0">
@@ -227,7 +228,7 @@ export function Header() {
                         Perfil
                       </div>
                     </SelectItem>
-                    <SelectItem value="pedidos" disabled>
+                    <SelectItem value="pedidos" className="cursor-pointer">
                       <div className="flex items-center">
                         <Package className="mr-2 h-4 w-4" />
                         Meus pedidos
@@ -303,9 +304,12 @@ export function Header() {
                     >
                       Perfil
                     </Link>
-                    <span className="cursor-not-allowed text-lg font-medium text-muted-foreground opacity-70">
+                    <Link
+                      href="/userPedidos"
+                      className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    >
                       Meus pedidos
-                    </span>
+                    </Link>
 
                     {user.role === "admin" && (
                       <Link
