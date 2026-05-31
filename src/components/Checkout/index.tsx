@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 // Componente da página de checkout com resumo do pedido, formulário de informações pessoais, opções de entrega e pagamento, e confirmação de pedido
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CreditCard,
@@ -13,35 +13,73 @@ import {
   MapPin,
   Building2,
   Check,
-} from 'lucide-react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/providers/CartProvider';
+} from "lucide-react";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/providers/CartProvider";
 
 export default function CheckoutComponent() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const [deliveryMethod, setDeliveryMethod] = useState('campus');
-  const [paymentMethod, setPaymentMethod] = useState('pix');
+  const [deliveryMethod, setDeliveryMethod] = useState("campus");
+  const [paymentMethod, setPaymentMethod] = useState("pix");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
-  const [orderId, setOrderId] = useState('');
+  const [orderId, setOrderId] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  // Estados para os campos de endereço
+  const [cep, setCep] = useState("");
+  const [street, setStreet] = useState("");
+  const [addressNumber, setAddressNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [city, setCity] = useState("");
+  // Estados para os campos de pagamento
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
   };
 
-  const shipping = deliveryMethod === 'delivery' ? 15.0 : 0;
+  const shipping = deliveryMethod === "delivery" ? 15.0 : 0;
   const total = subtotal + shipping;
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch("/api/auth/me");
+        const data = await response.json();
+
+        if (!response.ok || !data.user) {
+          router.push("/login");
+          return;
+        }
+
+        setUser(data.user);
+      } catch (error) {
+        console.error("Erro ao carregar usuário:", error);
+        router.push("/login");
+      } finally {
+        setLoadingUser(false);
+      }
+    }
+
+    fetchUser();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,37 +92,37 @@ export default function CheckoutComponent() {
       const formData = new FormData(form);
 
       const customer = {
-        name: String(formData.get('name') || ''),
-        email: String(formData.get('email') || ''),
-        phone: String(formData.get('phone') || ''),
-        cpf: String(formData.get('cpf') || ''),
-        course: '',
+        name: user?.name || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        cpf: user?.cpf || "",
+        course: user?.course || "",
       };
 
       const address =
-        deliveryMethod === 'delivery'
+        deliveryMethod === "delivery"
           ? {
-              cep: String(formData.get('cep') || ''),
+              cep: String(formData.get("cep") || ""),
 
-              street: String(formData.get('street') || ''),
+              street: String(formData.get("street") || ""),
 
-              number: String(formData.get('number') || ''),
+              number: String(formData.get("number") || ""),
 
-              complement: String(formData.get('complement') || ''),
+              complement: String(formData.get("complement") || ""),
 
-              neighborhood: String(formData.get('neighborhood') || ''),
+              neighborhood: String(formData.get("neighborhood") || ""),
 
-              city: String(formData.get('city') || ''),
+              city: String(formData.get("city") || ""),
 
-              state: 'CE',
+              state: "CE",
             }
           : null;
 
-      const response = await fetch('/api/pedidos', {
-        method: 'POST',
+      const response = await fetch("/api/pedidos", {
+        method: "POST",
 
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
 
         body: JSON.stringify({
@@ -103,7 +141,7 @@ export default function CheckoutComponent() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erro ao finalizar pedido.');
+        throw new Error(data.message || "Erro ao finalizar pedido.");
       }
 
       setOrderId(data.order.id);
@@ -114,7 +152,7 @@ export default function CheckoutComponent() {
     } catch (error: any) {
       console.error(error);
 
-      alert(error.message || 'Erro ao finalizar pedido.');
+      alert(error.message || "Erro ao finalizar pedido.");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,8 +171,8 @@ export default function CheckoutComponent() {
               Pedido Confirmado!
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Seu pedido{' '}
-              <span className="font-semibold text-foreground">{orderId}</span>{' '}
+              Seu pedido{" "}
+              <span className="font-semibold text-foreground">{orderId}</span>{" "}
               foi realizado com sucesso.
             </p>
             <p className="mt-4 text-sm text-muted-foreground">
@@ -173,6 +211,18 @@ export default function CheckoutComponent() {
     );
   }
 
+  if (loadingUser || !user) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center py-12">
+          <p className="text-muted-foreground">Verificando autenticação...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -205,9 +255,9 @@ export default function CheckoutComponent() {
                       <Input
                         id="name"
                         name="name"
-                        placeholder="Seu nome"
-                        required
-                        className="bg-secondary border-0"
+                        value={user.name || ""}
+                        disabled
+                        className="bg-secondary border-0 opacity-70"
                       />
                     </div>
                     <div className="space-y-2">
@@ -216,9 +266,9 @@ export default function CheckoutComponent() {
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="seu@email.com"
-                        required
-                        className="bg-secondary border-0"
+                        value={user.email || ""}
+                        disabled
+                        className="bg-secondary border-0 opacity-70"
                       />
                     </div>
                     <div className="space-y-2">
@@ -226,20 +276,21 @@ export default function CheckoutComponent() {
                       <Input
                         id="phone"
                         name="phone"
-                        placeholder="(00) 00000-0000"
-                        required
-                        className="bg-secondary border-0"
+                        value={user.phone || ""}
+                        disabled
+                        className="bg-secondary border-0 opacity-70"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cpf">CPF</Label>
-                      <Input
-                        id="cpf"
-                        name="cpf"
-                        placeholder="000.000.000-00"
-                        required
-                        className="bg-secondary border-0"
-                      />
+                    
+                    <div className="col-span-full mt-2 flex items-center justify-between rounded-lg border border-border bg-secondary/30 p-4">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Dados incorretos?
+                      </span>
+                      <Link href="/perfil">
+                        <Button type="button" variant="outline" size="sm">
+                          Altere seus dados no perfil
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -256,7 +307,7 @@ export default function CheckoutComponent() {
                     >
                       <label
                         htmlFor="campus"
-                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${deliveryMethod === 'campus' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${deliveryMethod === "campus" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
                       >
                         <RadioGroupItem value="campus" id="campus" />
                         <Building2 className="h-5 w-5 text-primary" />
@@ -272,7 +323,7 @@ export default function CheckoutComponent() {
                       </label>
                       <label
                         htmlFor="delivery"
-                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${deliveryMethod === 'delivery' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${deliveryMethod === "delivery" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
                       >
                         <RadioGroupItem value="delivery" id="delivery" />
                         <MapPin className="h-5 w-5 text-primary" />
@@ -286,7 +337,7 @@ export default function CheckoutComponent() {
                       </label>
                     </RadioGroup>
 
-                    {deliveryMethod === 'delivery' && (
+                    {deliveryMethod === "delivery" && (
                       <div className="mt-6 grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2 sm:col-span-2">
                           <Label htmlFor="cep">CEP</Label>
@@ -296,6 +347,13 @@ export default function CheckoutComponent() {
                             placeholder="00000-000"
                             required
                             className="bg-secondary border-0"
+                            value={cep}
+                            onChange={(e) => {
+                              let v = e.target.value.replace(/\D/g, "").slice(0, 8);
+                              if (v.length > 5) v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+                              setCep(v);
+                            }}
+                            maxLength={9}
                           />
                         </div>
                         <div className="space-y-2 sm:col-span-2">
@@ -306,6 +364,9 @@ export default function CheckoutComponent() {
                             placeholder="Rua, Avenida..."
                             required
                             className="bg-secondary border-0"
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            maxLength={44}
                           />
                         </div>
                         <div className="space-y-2">
@@ -316,6 +377,9 @@ export default function CheckoutComponent() {
                             placeholder="123"
                             required
                             className="bg-secondary border-0"
+                            value={addressNumber}
+                            onChange={(e) => setAddressNumber(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                            maxLength={4}
                           />
                         </div>
                         <div className="space-y-2">
@@ -325,6 +389,9 @@ export default function CheckoutComponent() {
                             name="complement"
                             placeholder="Apt, Bloco..."
                             className="bg-secondary border-0"
+                            value={complement}
+                            onChange={(e) => setComplement(e.target.value)}
+                            maxLength={20}
                           />
                         </div>
                         <div className="space-y-2">
@@ -335,6 +402,9 @@ export default function CheckoutComponent() {
                             placeholder="Seu bairro"
                             required
                             className="bg-secondary border-0"
+                            value={neighborhood}
+                            onChange={(e) => setNeighborhood(e.target.value)}
+                            maxLength={30}
                           />
                         </div>
                         <div className="space-y-2">
@@ -345,6 +415,9 @@ export default function CheckoutComponent() {
                             placeholder="Fortaleza"
                             required
                             className="bg-secondary border-0"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            maxLength={33}
                           />
                         </div>
                       </div>
@@ -366,7 +439,7 @@ export default function CheckoutComponent() {
                     >
                       <label
                         htmlFor="pix"
-                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === 'pix' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === "pix" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
                       >
                         <RadioGroupItem value="pix" id="pix" />
                         <QrCode className="h-5 w-5 text-primary" />
@@ -379,7 +452,7 @@ export default function CheckoutComponent() {
                       </label>
                       <label
                         htmlFor="credit"
-                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === 'credit' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === "credit" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
                       >
                         <RadioGroupItem value="credit" id="credit" />
                         <CreditCard className="h-5 w-5 text-primary" />
@@ -392,7 +465,7 @@ export default function CheckoutComponent() {
                       </label>
                       <label
                         htmlFor="boleto"
-                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === 'boleto' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                        className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors ${paymentMethod === "boleto" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
                       >
                         <RadioGroupItem value="boleto" id="boleto" />
                         <FileText className="h-5 w-5 text-primary" />
@@ -404,7 +477,7 @@ export default function CheckoutComponent() {
                         </div>
                       </label>
                     </RadioGroup>
-                    {paymentMethod === 'credit' && (
+                    {paymentMethod === "credit" && (
                       <div className="mt-6 grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2 sm:col-span-2">
                           <Label htmlFor="cardNumber">Número do Cartão</Label>
@@ -413,6 +486,9 @@ export default function CheckoutComponent() {
                             placeholder="0000 0000 0000 0000"
                             required
                             className="bg-secondary border-0"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
+                            maxLength={16}
                           />
                         </div>
                         <div className="space-y-2 sm:col-span-2">
@@ -422,6 +498,9 @@ export default function CheckoutComponent() {
                             placeholder="Nome como está no cartão"
                             required
                             className="bg-secondary border-0"
+                            value={cardName}
+                            onChange={(e) => setCardName(e.target.value)}
+                            maxLength={30}
                           />
                         </div>
                         <div className="space-y-2">
@@ -431,6 +510,13 @@ export default function CheckoutComponent() {
                             placeholder="MM/AA"
                             required
                             className="bg-secondary border-0"
+                            value={cardExpiry}
+                            onChange={(e) => {
+                              let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                              if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
+                              setCardExpiry(v);
+                            }}
+                            maxLength={5}
                           />
                         </div>
                         <div className="space-y-2">
@@ -440,6 +526,9 @@ export default function CheckoutComponent() {
                             placeholder="000"
                             required
                             className="bg-secondary border-0"
+                            value={cardCvv}
+                            onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                            maxLength={3}
                           />
                         </div>
                       </div>
@@ -492,10 +581,10 @@ export default function CheckoutComponent() {
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Frete</span>
                         <span className="font-medium">
-                          {shipping === 0 ? 'Grátis' : formatPrice(shipping)}
+                          {shipping === 0 ? "Grátis" : formatPrice(shipping)}
                         </span>
                       </div>
-                      {paymentMethod === 'pix' && (
+                      {paymentMethod === "pix" && (
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
                             Desconto PIX (5%)
@@ -511,7 +600,7 @@ export default function CheckoutComponent() {
                       <span className="text-lg font-semibold">Total</span>
                       <span className="text-lg font-bold text-primary">
                         {formatPrice(
-                          paymentMethod === 'pix' ? total * 0.95 : total,
+                          paymentMethod === "pix" ? total * 0.95 : total,
                         )}
                       </span>
                     </div>
@@ -521,7 +610,7 @@ export default function CheckoutComponent() {
                       className="w-full h-12 text-base"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? 'Processando...' : 'Confirmar Pedido'}
+                      {isSubmitting ? "Processando..." : "Confirmar Pedido"}
                     </Button>
                   </CardContent>
                 </Card>
