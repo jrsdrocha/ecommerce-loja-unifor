@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
-import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from 'lucide-react';
+import { toast } from "sonner";
+import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from "lucide-react";
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 import {
   Select,
@@ -20,9 +21,38 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import { useCart } from '@/providers/CartProvider';
+import { useCart } from "@/providers/CartProvider";
+
+// Componente customizado do toast para o Sonner
+const CartToast = ({ t }: { t: string | number }) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // Pequeno atraso para garantir que a transição do CSS seja acionada
+    const timer = setTimeout(() => setIsMounted(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      onClick={() => toast.dismiss(t)}
+      className="pointer-events-auto relative flex w-[320px] sm:w-[350px] cursor-pointer items-center gap-3 overflow-hidden rounded-lg bg-[#22c55e] p-4 text-white shadow-lg transition-colors hover:bg-[#16a34a]"
+    >
+      <Check className="h-5 w-5 shrink-0" />
+      <span className="text-sm font-medium">Item adicionado ao carrinho</span>
+
+      <div
+        className="absolute bottom-0 left-0 h-1 bg-white/60 transition-all ease-linear"
+        style={{
+          width: isMounted ? "0%" : "100%",
+          transitionDuration: "3000ms",
+        }}
+      />
+    </div>
+  );
+};
 
 export default function ProductDetailComponent() {
   const params = useParams();
@@ -33,9 +63,9 @@ export default function ProductDetailComponent() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
-  const [personalization, setPersonalization] = useState('');
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [personalization, setPersonalization] = useState("");
 
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -48,14 +78,14 @@ export default function ProductDetailComponent() {
         const response = await fetch(`/api/produtos/${params.id}`);
 
         if (!response.ok) {
-          throw new Error('Erro ao buscar produto');
+          throw new Error("Erro ao buscar produto");
         }
 
         const data = await response.json();
 
         setProduct(data.product);
       } catch (error) {
-        console.error('Erro ao carregar produto:', error);
+        console.error("Erro ao carregar produto:", error);
       } finally {
         setLoading(false);
       }
@@ -67,9 +97,9 @@ export default function ProductDetailComponent() {
   }, [params.id]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
   };
 
@@ -84,9 +114,19 @@ export default function ProductDetailComponent() {
       personalization || undefined,
     );
 
+    // Limpar os campos após adicionar ao carrinho
+    setSelectedSize("");
+    setSelectedColor("");
+    setPersonalization("");
+
     setAdded(true);
 
     setTimeout(() => setAdded(false), 2000);
+
+    // Chama o toast customizado
+    toast.custom((t) => <CartToast t={t} />, {
+      duration: 3000,
+    });
   };
 
   const decrementQuantity = () => {
@@ -242,7 +282,7 @@ export default function ProductDetailComponent() {
 
                 <div className="space-y-2">
                   <Label htmlFor="personalization">
-                    Personalização{' '}
+                    Personalização{" "}
                     <span className="text-muted-foreground">(opcional)</span>
                   </Label>
 

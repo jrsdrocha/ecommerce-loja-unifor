@@ -217,33 +217,48 @@ export function Header() {
                     if (val === "pedidos") router.push("/userPedidos");
                   }}
                 >
-                  <SelectTrigger className="h-9 w-auto gap-2 border border-input bg-transparent px-3 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground focus:ring-0">
-                    <User className="h-4 w-4 shrink-0" />
+                  <SelectTrigger className="group h-9 w-auto gap-2 border border-input bg-transparent px-3 text-sm font-medium shadow-sm hover:bg-accent hover:!text-white data-[state=open]:bg-accent data-[state=open]:!text-white focus:ring-0 transition-colors">
+                    <User className="h-4 w-4 shrink-0 text-black group-hover:text-white group-data-[state=open]:text-white transition-colors" />
                     <SelectValue placeholder={user.name} />
                   </SelectTrigger>
                   <SelectContent align="end">
-                    <SelectItem value="perfil" className="cursor-pointer">
+                    <SelectItem
+                      value="perfil"
+                      className="group cursor-pointer focus:!bg-accent focus:!text-white hover:!bg-accent hover:!text-white transition-colors"
+                    >
                       <div className="flex items-center">
-                        <UserCog className="mr-2 h-4 w-4" />
+                        <UserCog className="mr-2 h-4 w-4 text-black group-hover:text-white group-focus:text-white transition-colors" />
                         Perfil
                       </div>
                     </SelectItem>
-                    <SelectItem value="pedidos" className="cursor-pointer">
+                    <SelectItem
+                      value="pedidos"
+                      className="group cursor-pointer focus:!bg-accent focus:!text-white hover:!bg-accent hover:!text-white transition-colors"
+                    >
                       <div className="flex items-center">
-                        <Package className="mr-2 h-4 w-4" />
+                        <Package className="mr-2 h-4 w-4 text-black group-hover:text-white group-focus:text-white transition-colors" />
                         Meus pedidos
                       </div>
                     </SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  className="hover:bg-accent hover:!text-white transition-colors"
+                >
                   <LogOut className="h-5 w-5" />
                 </Button>
               </div>
             ) : (
               <Link href="/login">
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-accent hover:!text-white transition-colors"
+                >
                   <User className="h-5 w-5" />
                 </Button>
               </Link>

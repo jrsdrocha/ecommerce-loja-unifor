@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { CartProvider } from "@/providers/CartProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function RootLayout({
         className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <CartProvider>{children}</CartProvider>
+        <Toaster position="top-right" offset={80} />
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
